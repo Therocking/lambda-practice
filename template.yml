@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda simple Node.js desplegada con GitHub Actions
+
+Parameters:
+  LambdaS3Bucket:
+    Type: String
+    Description: Bucket donde se sube el artifact de la Lambda
+  LambdaS3Key:
+    Type: String
+    Description: Key (ruta/archivo) del artifact en el bucket
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub lambda-github-actions-role-${AWS::Region}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  HelloLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: hello-github-actions-lambda
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs20.x
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: !Ref LambdaS3Key
+      Timeout: 10
+      MemorySize: 128
+
+Outputs:
+  LambdaFunctionName:
+    Description: Nombre de la función Lambda
+    Value: !Ref HelloLambdaFunction
+

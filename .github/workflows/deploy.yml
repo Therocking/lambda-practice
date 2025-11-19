@@ -1,0 +1,59 @@
+name: Deploy Lambda via CloudFormation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      ARTIFACT_BUCKET: hello-lambda-artifact
+      ARTIFACT_KEY: lambda/hello-lambda.zip
+      STACK_NAME: hello-lambda-stack
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build artifact
+        run: ./build-artifact.sh
+
+      - name: Configure AWS credensials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload artifact to S3
+        run: |
+          aws s3 cp lambda.zip s3://${{ env.ARTIFACT_BUCKET }}/${{ env.ARTIFACT_KEY }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+      steps:
+        - name: CloudFormation deploy
+          run: |
+            aws cloudformation deploy \
+              --template-file template.yaml \
+              --stack-name ${{ env.STACK_NAME }} \
+              --capabilities CAPABILITY_NAMED_IAM \
+              --parameter-overrides \
+                LambdaS3Bucket=${{ env.ARTIFACT_BUCKET }} \
+                LambdaS3Key=${{ env.ARTIFACT_KEY }}
+
+        - name: Show stack output
+          run: |
+            aws cloudformation describe-stacks \
+              --stack-name ${{ env.STACK_NAME }} \
+              --query "Stacks[0].Outputs"
