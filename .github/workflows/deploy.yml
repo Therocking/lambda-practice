@@ -5,14 +5,14 @@ on:
     branches:
       - main
 
+env:
+  ARTIFACT_BUCKET: hello-lambda-artifact
+  ARTIFACT_KEY: lambda/hello-lambda.zip
+  STACK_NAME: hello-lambda-stack
+
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    env:
-      ARTIFACT_BUCKET: hello-lambda-artifact
-      ARTIFACT_KEY: lambda/hello-lambda.zip
-      STACK_NAME: hello-lambda-stack
+    runs-on: ubuntu-latest 
 
     steps:
       - name: Checkout repo
