@@ -41,19 +41,19 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-      steps:
-        - name: CloudFormation deploy
-          run: |
-            aws cloudformation deploy \
-              --template-file template.yaml \
-              --stack-name ${{ env.STACK_NAME }} \
-              --capabilities CAPABILITY_NAMED_IAM \
-              --parameter-overrides \
-                LambdaS3Bucket=${{ env.ARTIFACT_BUCKET }} \
-                LambdaS3Key=${{ env.ARTIFACT_KEY }}
+    steps:
+      - name: CloudFormation deploy
+        run: |
+          aws cloudformation deploy \
+            --template-file template.yaml \
+            --stack-name ${{ env.STACK_NAME }} \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+              LambdaS3Bucket=${{ env.ARTIFACT_BUCKET }} \
+              LambdaS3Key=${{ env.ARTIFACT_KEY }}
 
-        - name: Show stack output
-          run: |
-            aws cloudformation describe-stacks \
-              --stack-name ${{ env.STACK_NAME }} \
-              --query "Stacks[0].Outputs"
+      - name: Show stack output
+        run: |
+          aws cloudformation describe-stacks \
+            --stack-name ${{ env.STACK_NAME }} \
+            --query "Stacks[0].Outputs"
