@@ -24,7 +24,9 @@ jobs:
           node-version: '20'
 
       - name: Build artifact
-        run: ./build-artifact.sh
+        run: |
+          chmod +x ./build-artifact.sh
+          ./build-artifact.sh
 
       - name: Configure AWS credensials
         uses: aws-actions/configure-aws-credentials@v4
