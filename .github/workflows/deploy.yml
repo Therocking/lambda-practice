@@ -41,7 +41,7 @@ jobs:
       - name: CloudFormation deploy
         run: |
           aws cloudformation deploy \
-            --template-file template.yaml \
+            --template-file template.yml \
             --stack-name ${{ env.STACK_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
